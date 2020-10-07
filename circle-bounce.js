@@ -25,6 +25,24 @@ var timer;
 var points;
 var launchPoint = {x:1,y:1};
 
+function recompute() {
+  let x1 = points[0].x / radius;
+  let y1 = points[0].y / radius;
+  let x2 = points[1].x / radius;
+  let y2 = points[1].y / radius;
+  let x3 = points[2].x / radius;
+  let y3 = points[2].y / radius;
+
+  let n = -2 * (x3 * (y1 - y2) + x2 * (y3 - y1) + x1 * (y2 - y3));
+  let f1 = Math.pow(-x1*x1 - y1*y1 + 1, 0.5);
+  let f2 = Math.pow(-x2*x2 - y2*y2 + 1, 0.5);
+  let f3 = Math.pow(-x3*x3 - y3*y3 + 1, 0.5);  
+
+  n = n / f1 / f2 / f3;
+  
+  document.getElementById('number').innerText = n;
+}
+
 function doMouseMove(e){
     if (e.buttons) {
 	doMouseDown(e);
@@ -52,7 +70,23 @@ function doMouseDown(e){
     points.shift();    
     points.push( p );
     console.log( points );
+  
+    recompute();
     draw();
+}
+
+function doKeyDown(e) {
+  document.getElementById('number').style.visibility = 'visible';
+  
+  if (e.shiftKey) {
+    document.getElementById('number').style.visibility = 'visible';
+  } else {
+    document.getElementById('number').style.visibility = 'hidden';
+  }
+}
+
+function doKeyUp(e) {
+  doKeyDown(e);
 }
 
 function init() {
@@ -60,6 +94,8 @@ function init() {
     ctx = canvas.getContext("2d");
     canvas.addEventListener("mousemove",doMouseMove,false);
     canvas.addEventListener("mousedown",doMouseDown,false);
+    window.addEventListener("keydown",doKeyDown,false);
+    window.addEventListener("keyup",doKeyUp,false);
 
     radius = canvas.width/2 - 20;
     
@@ -68,7 +104,9 @@ function init() {
     points = [];
     points.push( {x: radius/4,y:radius/4} );
     points.push( {x: -radius/4,y:radius/4} );
-    points.push( {x: radius/4,y:-radius/4} );    
+    points.push( {x: radius/4,y:-radius/4} );
+
+    recompute();
 }
 
 function intersectRayWithSegment( p, v, endpoints ) {
